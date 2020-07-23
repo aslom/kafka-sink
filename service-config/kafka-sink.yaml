@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-sink
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &labels
+      app: kafka-sink
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: kafka-sink
+          #image: aslom/kafka_sink
+          image: aslom/kafka_sink:1.0
+          env:
+            - name: KAFKA_SERVER
+              value: my-cluster-kafka-bootstrap.kafka:9092
+            - name: KAFKA_TOPIC
+              value: knative-sink-topic
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kafka-sink
+spec:
+  selector:
+    app: kafka-sink
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
